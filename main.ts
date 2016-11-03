@@ -1,4 +1,5 @@
-console.log("Hello world!");
+import moment = require('moment');
+console.log(moment().format('YYYY-MM-DD HH:mm:ss'));
 
 //
 // calculate "4:00:00 / 42.2" => 0:05:41.2
