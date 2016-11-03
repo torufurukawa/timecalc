@@ -1,4 +1,4 @@
-import moment = require('moment');
+import * as moment from 'moment';
 console.log(moment().format('YYYY-MM-DD HH:mm:ss'));
 
 //

@@ -3,7 +3,7 @@ var typescript = require('gulp-typescript');
 var exec = require('child_process').exec;
 
 gulp.task('build', function() {
-  var options = {out: 'main.js', module: 'amd', moduleResolution: 'node'};
+  var options = {moduleResolution: 'node'};
   gulp.src([
     './*.ts',
     '!./node_modules/**'
