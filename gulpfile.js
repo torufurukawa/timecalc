@@ -1,4 +1,11 @@
 var gulp = require('gulp');
+var browserify = require('browserify');
+var source = require('vynyl-source-stream');
+var tsify = require('tsify');
+var path = {
+  pages: ['*.html']
+};
+
 var typescript = require('gulp-typescript');
 var exec = require('child_process').exec;
 
