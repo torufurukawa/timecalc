@@ -1,32 +1,33 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
-var source = require('vynyl-source-stream');
+var source = require('vinyl-source-stream');
+var watchify = require('watchify');
 var tsify = require('tsify');
-var path = {
-  pages: ['*.html']
+var gutil = require('gulp-util');
+var paths = {
+  pages: ['./*.html']
 };
 
-var typescript = require('gulp-typescript');
-var exec = require('child_process').exec;
+var watchedBrowserify = watchify(browserify({
+  basedir: '.',
+  debug: true,
+  entries: ['./main.ts'],  // todo: use src/main.ts
+  cache: {},
+  packageCache: {}
+}).plugin(tsify));
 
-gulp.task('build', function() {
-  var options = {moduleResolution: 'node'};
-  gulp.src([
-    './*.ts',
-    '!./node_modules/**'
-  ])
-  .pipe(typescript(options))
-  .pipe(gulp.dest('./'));
+gulp.task('copy-html', function() {
+  return gulp.src(paths.pages)
+    .pipe(gulp.dest('dist'));
 });
 
-gulp.task('main', function (callback) {
-  exec('node main.js', function (err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    callback(err);
-  });
-})
+function bundle() {
+  return watchedBrowserify
+    .bundle()
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest('dist'));
+}
 
-gulp.task('watch', function(){
-  gulp.watch('./*.ts', ['build', 'main']);
-});
+gulp.task('default', ['copy-html'], bundle);
+watchedBrowserify.on('update', bundle);
+watchedBrowserify.on('log', gutil.log);
