@@ -3,6 +3,7 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var tsify = require('tsify');
+var typescript = require('gulp-typescript');
 var gutil = require('gulp-util');
 var paths = {
   pages: ['./*.html']
@@ -19,6 +20,22 @@ var watchedBrowserify = watchify(browserify({
 gulp.task('copy-html', function() {
   return gulp.src(paths.pages)
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('transpile', function() {
+  var options = {moduleResolution: 'node'};
+  gulp.src([
+    './*.ts',
+    '!./node_modules/**'
+  ])
+  .pipe(typescript(options))
+  .pipe(gulp.dest('./'));
+});
+
+gulp.task('bundle', ['transpile'], function() {
+  browserify(['./main.js'])
+    .bundle()
+    .pipe(process.stdout);  // TODO: output on dest/bundle.js
 });
 
 function bundle() {
