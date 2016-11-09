@@ -6,7 +6,8 @@ var tsify = require('tsify');
 var typescript = require('gulp-typescript');
 var gutil = require('gulp-util');
 var paths = {
-  pages: ['./*.html']
+  pages: ['./*.html'],
+  scripts: ['./bundle.js']
 };
 
 var watchedBrowserify = watchify(browserify({
@@ -33,9 +34,15 @@ gulp.task('transpile', function() {
 });
 
 gulp.task('bundle', ['transpile'], function() {
-  browserify(['./main.js'])
+  browserify({entries: ['./main.js']})
     .bundle()
-    .pipe(process.stdout);  // TODO: output on dest/bundle.js
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('pack', ['copy-html'], function() {
+  return gulp.src(paths.scripts)
+    .pipe(gulp.dest('dist'));
 });
 
 function bundle() {
