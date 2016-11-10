@@ -10,14 +10,6 @@ var paths = {
   scripts: ['./bundle.js']
 };
 
-var watchedBrowserify = watchify(browserify({
-  basedir: '.',
-  debug: true,
-  entries: ['./main.ts'],  // todo: use src/main.ts
-  cache: {},
-  packageCache: {}
-}).plugin(tsify));
-
 gulp.task('copy-html', function() {
   return gulp.src(paths.pages)
     .pipe(gulp.dest('dist'));
@@ -45,13 +37,7 @@ gulp.task('pack', ['copy-html'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-function bundle() {
-  return watchedBrowserify
-    .bundle()
-    .pipe(source('bundle.js'))
-    .pipe(gulp.dest('dist'));
-}
-
-gulp.task('default', ['copy-html'], bundle);
-watchedBrowserify.on('update', bundle);
-watchedBrowserify.on('log', gutil.log);
+gulp.task('watch', function() {
+  gulp.watch(['./*.html'], ['copy-html']);
+  gulp.watch(['./*.ts'], ['bundle', 'pack']);
+});
