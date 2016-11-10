@@ -1,3 +1,8 @@
+var paths = {
+  pages: ['./*.html'],
+  scripts: ['build/bundle.js']
+};
+
 var gulp = require('gulp');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -5,17 +10,21 @@ var watchify = require('watchify');
 var tsify = require('tsify');
 var typescript = require('gulp-typescript');
 var gutil = require('gulp-util');
-var paths = {
-  pages: ['./*.html'],
-  scripts: ['./bundle.js']
-};
 
-gulp.task('copy-html', function() {
+// Tasks
+
+gulp.task('pack', ['js-pack', 'html-pack'], function() {});
+
+// HTML tasks
+
+gulp.task('html-pack', function() {
   return gulp.src(paths.pages)
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('transpile', function() {
+// Script tasks
+
+gulp.task('scripts-compile', function() {
   var options = {moduleResolution: 'node'};
   gulp.src([
     './*.ts',
@@ -25,16 +34,17 @@ gulp.task('transpile', function() {
   .pipe(gulp.dest('./'));
 });
 
-gulp.task('bundle', ['transpile'], function() {
+gulp.task('scripts-build', function() {
   browserify({entries: ['./main.js']})
     .bundle()
     .pipe(source('bundle.js'))
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest('./build'));
 });
 
-gulp.task('pack', ['copy-html'], function() {
-  return gulp.src(paths.scripts)
-    .pipe(gulp.dest('dist'));
+gulp.task('build-scripts', ['scripts-compile', 'scripts-build'], function() {});
+
+gulp.task('js-pack', function() {
+  return gulp.src(paths.scripts).pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function() {
