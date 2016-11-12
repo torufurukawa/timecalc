@@ -1,6 +1,12 @@
 var paths = {
   pages: ['./*.html'],
-  scripts: ['build/bundle.js']
+  tsSources: ['./main.ts'],
+  entryScript: 'main.js',
+  scripts: ['build/bundle.js'],  // ??
+  watch: ['./*.html', './*.ts'],
+  distDir: 'dist',
+  buildDir: 'build',
+  targetScript: 'bundle.js'
 };
 
 var gulp = require('gulp');
@@ -13,41 +19,40 @@ var gutil = require('gulp-util');
 
 // Tasks
 
-gulp.task('pack', ['js-pack', 'html-pack'], function() {});
+gulp.task('build', ['scripts-build'], function() {});
+gulp.task('pack', ['scripts-pack', 'html-pack'], function() {});
+gulp.task('default', ['build', 'pack'], function() {});
+gulp.task('watch', ['default'], function() {
+  gulp.watch(paths.watch, ['default']);
+});
+
 
 // HTML tasks
 
 gulp.task('html-pack', function() {
   return gulp.src(paths.pages)
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(paths.distDir));
 });
 
 // Script tasks
 
 gulp.task('scripts-compile', function() {
-  var options = {moduleResolution: 'node'};
-  gulp.src([
-    './*.ts',
-    '!./node_modules/**'
-  ])
-  .pipe(typescript(options))
-  .pipe(gulp.dest('./'));
+  gulp.src(paths.tsSources)
+  .pipe(typescript({moduleResolution: 'node'}))
+  .pipe(gulp.dest(paths.buildDir));
 });
 
-gulp.task('scripts-build', function() {
-  browserify({entries: ['./main.js']})
+gulp.task('scripts-bundle', function() {
+  browserify({entries: [`${paths.buildDir}/${paths.entryScript}`]})
     .bundle()
-    .pipe(source('bundle.js'))
-    .pipe(gulp.dest('./build'));
+    .pipe(source(paths.targetScript))
+    .pipe(gulp.dest(paths.buildDir));
 });
 
-gulp.task('build-scripts', ['scripts-compile', 'scripts-build'], function() {});
+gulp.task('scripts-build', ['scripts-compile', 'scripts-bundle'],
+          function() {});
 
-gulp.task('js-pack', function() {
-  return gulp.src(paths.scripts).pipe(gulp.dest('dist'));
-});
-
-gulp.task('watch', function() {
-  gulp.watch(['./*.html'], ['copy-html']);
-  gulp.watch(['./*.ts'], ['bundle', 'pack']);
+gulp.task('scripts-pack', function() {
+  return gulp.src(`${paths.buildDir}/${paths.targetScript}`)
+    .pipe(gulp.dest(paths.distDir));
 });
