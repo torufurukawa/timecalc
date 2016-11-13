@@ -4,8 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "gulp build",
-    "main": "gulp main",
+    "make": "gulp",
     "watch": "gulp watch"
   },
   "keywords": [],
